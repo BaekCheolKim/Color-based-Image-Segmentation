@@ -29,8 +29,15 @@ The CIFAR-10 dataset used for this project can be found at the following link:
 https://www.cs.toronto.edu/~kriz/cifar.html
 
 ## How to Run
-
+# K-means Algorithm
 (Instructions on how to run the implementations would be provided here.)
+Intilise K-means algorithm using the class name and specifing number of clusters and maximum interations.
+Ensure image is of float 64, normalised into range [0 1] and reshaped into single vector using reshape(-1,3).
+Use cluster_centers_ and labels_ to produce segmented image and reshape before viewing.
+
+kmeans = KMeans(n_clusters=cluster)
+kmeans.fit(pixels)
+segmented_img = kmeans.cluster_centers_[kmeans.labels_].reshape(image.shape)
 
 ## Results
 
