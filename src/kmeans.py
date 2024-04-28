@@ -3,15 +3,15 @@ import numpy as np
 
 class KMeans:
     """
-    Ensure image is of float 64 normalised between the range [0 1] and reshaped into a single vector.
     Display segmented image: segmented_img = centroids[labels].reshape(img.shape)
     """
     def __init__(self, n_clusters, max_iter=100):
+        """Initialise k means algorithm with required number of clusters and maximum interations"""
         self.n_clusters = n_clusters
         self.max_iter = max_iter
 
     def fit(self, X):
-        """"""
+        """Perform K means algorithm for given n_cluster on float 64 image normalised and reshaped into single vector"""
         # Randomly initialize centroids
         centroids = X[np.random.choice(X.shape[0], self.n_clusters, replace=False)]
         for _ in range(self.max_iter):
