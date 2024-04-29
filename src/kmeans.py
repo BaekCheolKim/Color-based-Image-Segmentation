@@ -33,7 +33,7 @@ class KMeans:
             # Update centroids by taking the mean of all data points assigned to each centroid
             new_centroids = np.array([X[labels == k].mean(axis=0) for k in range(self.n_clusters)])
             # Check for convergence
-            if np.allclose(new_centroids, centroids, atol = self.atol):
+            if np.allclose(new_centroids, centroids, atol = self.tol):
                 break
             centroids = new_centroids
         self.labels_ = labels
