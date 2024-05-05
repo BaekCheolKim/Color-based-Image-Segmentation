@@ -8,7 +8,7 @@ def load_images_by_label(file_path, label_name):
     - label_name: str, name of the label to search for
     
     Returns:
-    - images: list of numpy arrays, containing all images with the specified label
+    - images: list of numpy arrays, containing all images with the specified label, shape(3, 32, 32)
     """
     label_to_class = {
         "airplane": 0, "automobile": 1, "bird": 2, "cat": 3,
