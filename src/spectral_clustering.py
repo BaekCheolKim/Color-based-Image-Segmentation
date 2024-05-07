@@ -1,46 +1,48 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.cluster import SpectralClustering
-import pickle
-import os
+from sklearn.cluster import KMeans
+from sklearn.metrics import pairwise_distances
+from scipy.sparse.linalg import eigsh
+from scipy.spatial.distance import cdist
 
-def load_cifar10_batch(file):
-    with open(file, 'rb') as fo:
-        dict = pickle.load(fo, encoding='bytes')
-    return dict[b'data'], dict[b'labels']
+"""
+Perform spectral clustering with feature enhancement and spectral rotation.
 
-def preprocess_images(data):
-    # Normalize and reshape the data
-    data = data / 255.0
-    data = data.reshape(data.shape[0], 32 * 32, 3)
-    return data
+Parameters:
+- image: numpy array, shape (height, width, channels), input image
+- n_clusters: int, number of desired clusters
+- sigma_color: float, scaling factor for color distances
+- sigma_space: float, scaling factor for spatial distances
 
-def spectral_segmentation(data, n_clusters=4):
-    # Reshape the data for clustering
-    data_flat = data.reshape(data.shape[0] * data.shape[1], 3)
-    # Perform Spectral Clustering
-    clustering = SpectralClustering(n_clusters=n_clusters, affinity='nearest_neighbors', random_state=0)
-    labels = clustering.fit_predict(data_flat)
-    segmented_data = data_flat[labels].reshape(data.shape)
-    return segmented_data
+Returns:
+- segmented_image: numpy array, segmented image
+"""
 
-def display_images(original, segmented):
-    fig, ax = plt.subplots(1, 2, figsize=(8, 4))
-    ax[0].imshow(original)
-    ax[0].set_title('Original Image')
-    ax[0].axis('off')
-    ax[1].imshow(segmented)
-    ax[1].set_title('Segmented Image')
-    ax[1].axis('off')
-    plt.show()
+def spectral_clustering(image, n_clusters=4, sigma_color=10.0, sigma_space=0.5):
+    # Normalizing and reshaping the image
+    img_flat = (image / 255.0).reshape(-1, 3)
+    height, width, channels = image.shape
+    x, y = np.indices((height, width))
 
-if __name__ == '__main__':
-    # Load a single batch from CIFAR-10
-    data, labels = load_cifar10_batch('data/cifar-10-batches-py/data_batch_1')
-    # Select a subset of images for demonstration, e.g., first 100 images
-    selected_images = preprocess_images(data[:100])
+    # Feature enhancement: combining color and spatial features
+    features = np.concatenate((img_flat, x.reshape(-1, 1) / sigma_space, y.reshape(-1, 1) / sigma_space), axis=1)
 
-    for i in range(5):  # Display first 5 images and their segmentations
-        original_img = selected_images[i].reshape(32, 32, 3)
-        segmented_img = spectral_segmentation(selected_images[i:i+1])
-        display_images(original_img, segmented_img)
+    # Computing the affinity matrix
+    dists = cdist(features, features)
+    affinity_matrix = np.exp(-dists / sigma_color**2)
+
+    # Eigen decomposition for dimensionality reduction
+    eigenvalues, eigenvectors = eigsh(affinity_matrix, k=n_clusters + 1, which='LM', sigma=0.0)
+
+    # Optional: Spectral rotation (modify this according to your needs)
+    # For example, here a simple normalization is applied
+    U = eigenvectors[:, 1:]  # skip the first eigenvector for better clustering
+    norm_U = U / np.linalg.norm(U, axis=1, keepdims=True)
+
+    # Clustering using KMeans on the transformed features
+    kmeans = KMeans(n_clusters=n_clusters)
+    kmeans.fit(norm_U)
+    labels = kmeans.labels_
+
+    # Assign each pixel the color of its nearest centroid
+    segmented_image = kmeans.cluster_centers_[labels].reshape(height, width, -1) * 255
+    return segmented_image.astype(np.uint8)
