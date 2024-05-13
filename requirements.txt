@@ -1,7 +1,9 @@
-scikit-image
-pickle
 matplotlib
 numpy
-sklearn
+pickle
+os
+scikit-image
 scipy
+sklearn
+sys
 tarfile
