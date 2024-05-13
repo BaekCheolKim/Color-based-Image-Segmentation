@@ -32,7 +32,7 @@ class KMeans:
         for _ in range(self.max_iter):
             labels = np.argmin(((X[:, None] - centroids)**2).sum(axis=2), axis=1)
             new_centroids = np.array([X[labels == k].mean(axis=0) for k in range(self.n_clusters)])
-            if np.allclose(new_centroids, centroids, atol = self.tol):
+            if np.allclose(new_centroids, centroids, atol = self.atol):
                 break
             centroids = new_centroids
         self.labels_ = labels

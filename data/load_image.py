@@ -1,4 +1,4 @@
-def load_images_by_label(file_path, label_name):
+def load_cifar10images_by_label(file_path, label_name):
     import pickle
     """
     Load all images with a specified label from a CIFAR-10 batch file.
@@ -26,7 +26,24 @@ def load_images_by_label(file_path, label_name):
     for i, label in enumerate(labels):
         if label == class_label:
             img = images[i]
-            img = img.reshape(3, 32, 32)
+            img = img.reshape(3, 32, 32).transpose([1,2,0])
             label_images.append(img)
-    
     return label_images
+
+def load_cifar10images_by_idx(file_path, img_idx=0):
+    import pickle
+    """
+    Load a specific image from CIFAR-10 dataset.
+    
+    Parameters:
+    - file_path: str, path to the CIFAR-10 batch file
+    - img_idx: int, index of the image to load
+    
+    Returns:
+    - img: numpy array, the image data
+    """
+    with open(file_path, 'rb') as file:
+        batch = pickle.load(file, encoding='latin1')
+        img = batch['data'][img_idx]
+        img = img.reshape(3, 32, 32).transpose([1, 2, 0])
+    return img
