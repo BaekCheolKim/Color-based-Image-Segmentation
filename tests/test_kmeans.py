@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 's
 from kmeans import KMeans
 from load_image import load_cifar10images_by_label
 
-size = 5
+size = 3
 label = "horse"
 images = load_cifar10images_by_label('data/cifar-10-batches-py/data_batch_1',label)
 
